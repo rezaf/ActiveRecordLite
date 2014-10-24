@@ -40,26 +40,35 @@ class SQLObject
   end
 
   def self.all
-    # ...
+    output_hash = DBConnection.execute(<<-SQL)
+      SELECT
+        "#{table_name}".*
+      FROM
+        "#{table_name}"
+    SQL
+    
+    parse_all(output_hash)
   end
 
   def self.parse_all(results)
-    # ...
+    results.map { |result| self.new(result) }
   end
 
   def self.find(id)
-    # ...
+    
   end
 
   def initialize(params = {})
-    #debugger
     
-    params.each do |attr_name, value|    
+    params.each do |attr_name, value| 
+         
+      attr_name = attr_name.to_sym
+      
       unless self.class.columns.include?(attr_name)
         raise "unknown attribute '#{attr_name}'"
       end
       
-      self.class.columns.send(attributes[self.class.columns], value)
+      self.send("#{attr_name}=", value)
     end
   end
 
